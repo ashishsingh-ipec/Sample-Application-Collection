@@ -1,0 +1,1642 @@
+{
+  "variables": [],
+  "info": {
+    "name": "UUA Publisher",
+    "_postman_id": "66b5972e-2474-3f02-fff6-8c69b1f57beb",
+    "description": "",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "_postman_id": "160cf30e-8da8-a412-b570-c6c0f9ac492c",
+      "name": "00 - login",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "3a5524ff-c57c-e58a-d58b-6f02b3b382d9",
+          "name": "login with superuser",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;",
+                  "var token = postman.getResponseHeader(\"x-auth-token\");",
+                  "postman.setEnvironmentVariable(\"x-auth-token\", token);",
+                  "",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var sp = postman.getEnvironmentVariable(\"basepath\").replace(\"/v1\",\"\");",
+                  "postman.setEnvironmentVariable(\"servletpath\", sp);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{servletpath}}/login",
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "e",
+                  "type": "text",
+                  "value": "avocadoworkflow@gmail.com"
+                },
+                {
+                  "key": "p",
+                  "type": "text",
+                  "value": "avOcad0"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "9396c5c6-ae8c-502e-f503-36dcb65f77f6",
+      "name": "01 - Create Publisher Org",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "f98ddc0e-22b6-0293-acc3-8b279672f502",
+          "name": "Create Demo Publisher 'UUA-PUB'",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/Organization",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"Code\": \"{{pubOrgCode}}\",\n    \"Name\": \"Demo Publisher ({{pubOrgCode}})\",\n    \"user\": {\n        \"email\":\"mthawani@gmail.com\"\n    },\n    \"Type\": \"PUBLISHER\"\n}\n"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "99d57dcd-c9c0-bc35-4ced-5f49562aa86e",
+          "name": "Create Domain Application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var domain_application_id = jsonData.Id;",
+                  "postman.setGlobalVariable(\"domain_application_id\", domain_application_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/domain-applications",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AllowWidoReplacement\" : true\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "fbb1b6fc-c9a4-dc68-3685-93bc01c2992e",
+          "name": "Set Organization Settings",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/settings",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"root.entity.profile.property\" : \"UUAProfile\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "58fb7a32-2c96-d27c-1de9-bd65071782cf",
+      "name": "02 - Create Domain Model",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "04156ca6-e5a3-18d4-1bfb-b8d4ead77cca",
+          "name": "Create Domain Model 'UUA-DOMAIN'",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain model failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"Code\": \"{{domain_model_code}}\",\n    \"Name\": \"Demo Domain Model ({{domain_model_code}})\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "aed05bd7-970d-8695-f110-d51ded32bb75",
+      "name": "04 - Create Domain Entities",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "642b0ba4-6d11-48db-5032-e5b616c5f359",
+          "name": "Client_Entity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"Code\":\"Client_Entity\",\n    \"Name\":\"Client_Entity\",\n    \"Type\":\"CLIENT_ENTITY\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "0b667897-77f5-bf53-97f6-6f23790a863f",
+          "name": "User_Entity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"Code\":\"User_Entity\",\n    \"Name\":\"User_Entity\",\n    \"Type\":\"USER_ENTITY\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "06244112-276a-2aba-5580-01750c70260a",
+          "name": "DictEducationLevel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"DictEducationLevel\",\n  \"Name\": \"DictEducationLevel\",\n  \"Type\":\"DICTIONARY\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "fd2a3bd1-3a49-3186-8f24-eaafda698ddd",
+          "name": "DictSchoolYear",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"DictSchoolYear\",\n  \"Name\": \"DictSchoolYear\",\n  \"Type\":\"DICTIONARY\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "3e3ad8e0-15a0-3b23-40ad-44f0b4680e71",
+          "name": "DictGrade",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"DictGrade\",\n  \"Name\": \"DictGrade\",\n  \"Type\":\"DICTIONARY\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "cb637cd9-3d04-f59f-f732-463894a0a1ae",
+          "name": "DictApplDecisionOutcome",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"DictApplDecisionOutcome\",\n  \"Name\": \"DictApplDecisionOutcome\",\n  \"Type\":\"DICTIONARY\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "83b0a582-ae4b-fd4f-7e55-06e91b38f72d",
+          "name": "Applicant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"Applicant\",\n  \"Name\": \"Applicant\",\n  \"Type\": \"BUSINESS\",\n  \"DisplayProperty\": \"StudentName\",\n  \"properties\": [\n    {\n      \"Code\": \"ApplicantClientId\",\n      \"Name\": \"Applicant Client Id\",\n      \"editable\": \"true\",\n      \"required\": \"true\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"ENTITY\",\n      \"referenceEntity\": {\n        \"code\": \"Client_Entity\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n    },\n    {\n      \"Code\": \"StudentName\",\n      \"Name\": \"Student Name\",\n      \"editable\": \"true\",\n      \"required\": \"true\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"minLength\": 10,\n      \"maxLength\": 10,\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"SchoolYear\",\n      \"Name\": \"School Year\",\n      \"editable\": \"true\",\n      \"required\": \"true\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DICTIONARY\",\n      \"referenceEntity\": {\n        \"code\": \"DictSchoolYear\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n    },\n    {\n      \"Code\": \"StudentEmail\",\n      \"Name\": \"Student Email\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"PhoneNumber\",\n      \"Name\": \"Phone Number\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"ApplDecisionDate\",\n      \"Name\": \"Application Decision Date\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DATETIME\"\n    },\n    {\n      \"Code\": \"ApplDecisionOutcome\",\n      \"Name\": \"Application Decision Outcome\",\n      \"editable\": \"true\",\n      \"required\": \"true\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DICTIONARY\",\n      \"referenceEntity\": {\n        \"code\": \"DictApplDecisionOutcome\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n    },\n    {\n      \"Code\": \"EnrDeadlineDate\",\n      \"Name\": \"Enrollment Deadline Date\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DATETIME\"\n    },\n    {\n      \"Code\": \"ApplDecisionLetter\",\n      \"Name\": \"Application Decision Letter\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DOCUMENTENTITY\",\n      \"referenceEntity\": {\n        \"code\": \"BusinessDocument\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n    },\n    {\n      \"Code\": \"ApplAcceptance\",\n      \"Name\": \"Application Acceptance\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"maxLength\": 3,\n      \"minLength\": 3,\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"ApplEnrollmentLetter\",\n      \"Name\": \"Application Enrollment Letter\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DOCUMENTENTITY\",\n      \"referenceEntity\": {\n        \"code\": \"BusinessDocument\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n      },\n    {\n      \"Code\": \"ApplPoliciesnProcedures\",\n      \"Name\": \"Application Policies and Procedures\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DOCUMENTENTITY\",\n      \"referenceEntity\": {\n        \"code\": \"BusinessDocument\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n      }\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "a35dcfb2-c896-4496-79b7-eb9e5ccf38ee",
+          "name": "Education",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"Education\",\n  \"Name\": \"Education\",\n  \"Type\": \"BUSINESS\",\n  \"parentEntity\": {\n    \"code\": \"Applicant\",\n    \"domainModel\": {\n      \"code\": \"{{domain_model_code}}\",\n      \"organization\": {\n        \"code\": \"{{pubOrgCode}}\"\n      }\n    }\n  },\n  \"properties\": [\n    {\n      \"Code\": \"EducationLevel\",\n      \"Name\": \"Education Level\",\n      \"editable\": \"true\",\n      \"required\": \"true\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DICTIONARY\",\n      \"referenceEntity\": {\n        \"code\": \"DictEducationLevel\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n    },\n    {\n      \"Code\": \"SchoolName\",\n      \"Name\": \"School Name\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"minLength\": 10,\n      \"maxLength\": 10,\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"CompletionYear\",\n      \"Name\": \"Completion Year\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"minLength\": 10,\n      \"maxLength\": 10,\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"EducationLevelNSchool\",\n      \"Name\": \"EducationLevelNSchool\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"Transcript\",\n      \"Name\": \"Transcript\",\n      \"editable\": \"true\",\n      \"required\": \"true\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DOCUMENTENTITY\",\n      \"referenceEntity\": {\n        \"code\": \"BusinessDocument\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n    }\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "83c27829-ac4d-8e12-25f4-e6b919ff515f",
+          "name": "BusinessDocument",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"BusinessDocument\",\n  \"Name\": \"Business Document\",\n  \"Type\": \"BUSINESS\",\n  \"properties\": [\n    {\n      \"Code\": \"DocumentCode\",\n      \"Name\": \"code\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"DocFileId\",\n      \"Name\": \"Tempalte File Id\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"DocMimeType\",\n      \"Name\": \"Tempalte MIME Type\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"DocFileName\",\n      \"Name\": \"Tempalte File name\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"DocWebViewLink\",\n      \"Name\": \"Tempalte Web view link\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"DocIconLink\",\n      \"Name\": \"Tempalte Icon Link\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"FileId\",\n      \"Name\": \"File Id\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"MimeType\",\n      \"Name\": \"MIME Type\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"FileName\",\n      \"Name\": \"File name\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"WebViewLink\",\n      \"Name\": \"Web view link\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"IconLink\",\n      \"Name\": \"Icon Link\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"UploadedFileId\",\n      \"Name\": \"Uploaded File Id\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"UploadedMimeType\",\n      \"Name\": \"Uploaded MIME Type\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"UploadedFileName\",\n      \"Name\": \"Uploaded File name\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"UploadedWebViewLink\",\n      \"Name\": \"Uploaded Web view link\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"UploadedIconLink\",\n      \"Name\": \"Uploaded Icon Link\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    },\n    {\n      \"Code\": \"Label\",\n      \"Name\": \"Label\",\n      \"editable\": \"false\",\n      \"indexed\": \"false\",\n      \"required\": \"false\",\n      \"Type\": \"STRING\"\n    }\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "58e72aa8-91a1-3b99-9560-549f348425e4",
+          "name": "Grades",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var Id = jsonData.Id;",
+                  "if(!Id) {",
+                  "    tests[\"Create domain entity failed\"] = false;",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/domainEntity",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"Grades\",\n  \"Name\": \"Grades\",\n  \"Type\": \"BUSINESS\",\n  \"parentEntity\": {\n    \"code\": \"Applicant\",\n    \"domainModel\": {\n      \"code\": \"{{domain_model_code}}\",\n      \"organization\": {\n        \"code\": \"{{pubOrgCode}}\"\n      }\n    }\n  },\n  \"properties\": [\n      {\n      \"Code\": \"EducationLevel\",\n      \"Name\": \"EducationLevel\",\n      \"editable\": \"false\",\n      \"required\": \"true\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"ENTITY\",\n      \"referenceEntity\": {\n        \"code\": \"Education\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n    },\n  {\n      \"Code\": \"SubjectName\",\n      \"Name\": \"Subject Name\",\n      \"editable\": \"true\",\n      \"required\": \"false\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"minLength\": 10,\n      \"maxLength\": 10,\n      \"Type\": \"STRING\"\n    },\n      {\n      \"Code\": \"Grade\",\n      \"Name\": \"Grade\",\n      \"editable\": \"true\",\n      \"required\": \"true\",\n      \"indexed\": \"false\",\n      \"searchable\": \"false\",\n      \"Type\": \"DICTIONARY\",\n      \"referenceEntity\": {\n        \"code\": \"DictGrade\",\n        \"domainModel\": {\n          \"code\": \"{{domain_model_code}}\",\n          \"organization\": {\n            \"code\": \"{{pubOrgCode}}\"\n          }\n        }\n      }\n    }\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "42fc23c7-8adb-81de-dd02-c0220e00eec7",
+      "name": "05 - Populate Domain Entity Dictionaries",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "d900c695-347b-8dea-6cdb-13c54c726600",
+          "name": "DictSchoolYear",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/Domain-Model/{{domain_model_code}}/Domain-Entity/DictSchoolYear/entities/bulk",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[{\n    \"Code\": \"CurrentYear\",\n    \"Name\": \"2017\",\n    \"SortOrder\": 0\n}\n]\n"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "cac1aa66-4bcf-c3fb-ee9d-819b056e01b0",
+          "name": "DictApplDecisionOutcome",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/Domain-Model/{{domain_model_code}}/Domain-Entity/DictApplDecisionOutcome/entities/bulk",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[{\n    \"Code\": \"01\",\n    \"Name\": \"Accepted\",\n    \"SortOrder\": 0\n},\n{\n    \"Code\": \"02\",\n    \"Name\": \"Rejected\",\n    \"SortOrder\": 1\n}\n]\n"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "b2270d02-d9e9-6db7-ae6c-e66816752792",
+          "name": "DictEducationLevel",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/Domain-Model/{{domain_model_code}}/Domain-Entity/DictEducationLevel/entities/bulk",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n{\n    \"Code\": \"01\",\n    \"Name\": \"High School\",\n    \"SortOrder\": 0\n},\n{\n    \"Code\": \"02\",\n    \"Name\": \"Bachelors\",\n    \"SortOrder\": 1\n},\n{\n    \"Code\": \"03\",\n    \"Name\": \"Masters\",\n    \"SortOrder\": 2\n},\n{\n    \"Code\": \"04\",\n    \"Name\": \"Diploma\",\n    \"SortOrder\": 3\n},\n{\n    \"Code\": \"05\",\n    \"Name\": \"Others\",\n    \"SortOrder\": 4\n}\n]\n"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "120852fb-8906-327a-e408-382817fb25b2",
+          "name": "DictGrade",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/Domain-Model/{{domain_model_code}}/Domain-Entity/DictGrade/entities/bulk",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n{\n    \"Code\": \"01\",\n    \"Name\": \"Grade A\",\n    \"SortOrder\": 0\n},\n{\n    \"Code\": \"02\",\n    \"Name\": \"Grade B\",\n    \"SortOrder\": 1\n},\n{\n    \"Code\": \"03\",\n    \"Name\": \"Grade C\",\n    \"SortOrder\": 2\n},\n{\n    \"Code\": \"04\",\n    \"Name\": \"Grade D\",\n    \"SortOrder\": 3\n}\n]\n"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "fbdd1cdb-454f-940e-2b47-40ddf4447f12",
+      "name": "05.01 Associate Payer Entity",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "1cb5253a-eac4-a452-5efa-49fd77526a17",
+          "name": "Set payer entity on Domain Model",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/domainmodel/{{domain_model_code}}/payer",
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\":\"Applicant\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "d2efaf42-dd6b-160d-534e-f04bb6f0be4d",
+      "name": "06 - Populate  Workflow Categories",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "5646faf6-7ff4-9f4c-680b-474827e488aa",
+          "name": "Application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/WorkflowCategory",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"Application\",\n  \"Name\": \"Application\",\n  \"icon\": \"chevron-right\",\n  \"SortOrder\": 0,\n  \"description\": \"This Section contains workflow for Admission Application\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "cc518309-9176-cb0e-9ada-404a5c80e02f",
+      "name": "07 - Create Roles",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "ea568086-d562-c444-9c58-b22ce09fdf1b",
+          "name": "Admission Officer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/roles",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"AdmissionOfficer\",\n  \"name\": \"Admission Officer\",\n  \"type\": \"ORG_ROLE\",\n  \"permissions\": [\n    \"START_WORKFLOW\",\n    \"EXECUTE_ACTION\",\n    \"REQUEST_CANCEL\",\n    \"RETRY_WORKFLOW\"\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "752adf0f-002e-6829-ab4d-753961d42583",
+          "name": "Client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/roles",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"STUDENT\",\n  \"name\": \"Student\",\n  \"type\": \"CLIENT_ROLE\",\n  \"permissions\": [\n    \"START_WORKFLOW\",\n    \"EXECUTE_ACTION\",\n    \"REQUEST_CANCEL\"\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "94aec046-0870-d1ac-ac57-a8b84624b4cc",
+      "name": "08.00 - Create and Publish Domain Application",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "674759f9-bd9f-6635-d067-cb6960cf6941",
+          "name": "Create Domain Application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var domain_application_id = jsonData.Id;",
+                  "postman.setGlobalVariable(\"domain_application_id\", domain_application_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/domain-applications/{{domain_application_id}}",
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"DomainModel\": {\n    \"Code\": \"{{domain_model_code}}\"\n  },\n  \"MainRootEntityCreationWorkflow\" : {   \n    \"Code\" : \"Admission-WORKFLOW\"\n  }\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "e1f9a114-cb25-ba4a-cb7f-f874e141cb75",
+          "name": "Publish Domain Application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/market/applications",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Id\": {{domain_application_id}}\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "75e69cfa-3fac-aaf0-736d-3cd5e83b852b",
+      "name": "08.00.01 Create Licensing Model",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "33165047-e86b-127a-fdae-fd0a4fb431f3",
+          "name": "Licensing Model",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var licensingModelKey = jsonData.Key;",
+                  "postman.setGlobalVariable(\"licensingModelKey\", licensingModelKey);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/domainApplication/{{domain_application_id}}/licensingModel",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Name\":\"Revenue percentage\",\n  \"Description\":\"Revenue percentage\",\n  \"Type\":\"REVENUE_PERCENT\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "c93f95bd-c9a0-5e2d-d13a-9a0ab6bc241a",
+      "name": "08.1 Create Workflow -  Admission Workflow",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "06656f5c-8fd7-23f7-a460-91487dd03fc1",
+          "name": "Workflow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var version = jsonData.Version;",
+                  "postman.setGlobalVariable(\"ADM_V\", version);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/workflows",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"ADMISSION-WORKFLOW\",\n  \"Name\": \"Apply for Admission\",\n  \"Description\": \"Use this service request to apply for Admission\",\n  \"IntroScreen\": \"<p>Apply to National University of Ukraine</p>\",\n  \"sortOrder\": 99,\n  \"WorkflowCategory\": {\n    \"Code\": \"APPLICATION\"\n  },\n  \"StartRoles\": [\n    {\n      \"Code\": \"STUDENT\"\n    }\n    \n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "1eeff74a-d534-2f79-e981-dcc698666955",
+          "name": "Document JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/workflow/ADMISSION-WORKFLOW/{{ADM_V}}/document",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"DomainModel\": {\n    \"Code\": \"{{domain_model_code}}\"\n  },\n  \"displayPropertyRequired\": true,\n  \"rootEntity\": {\n    \"Code\": \"Applicant\",\n    \"Properties\": [\n      \"ApplDecisionLetter\",\n      \"ApplEnrollmentLetter\",\n      \"ApplPoliciesnProcedures\"\n    ]\n  },\n  \"DescendantEntities\": [\n    {\n      \"Code\": \"Education\",\n      \"Properties\": [\n        \"Transcript\"\n      ]\n    },\n    {\n      \"Code\": \"Grades\"\n    }\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "e9d466e0-9756-f254-06cd-0eac52cd5672",
+          "name": "Form Version",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/workflow/ADMISSION-WORKFLOW/{{ADM_V}}/form",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": \"1.0\",\n   \"control\": \"awi-form\",\n  \"elements\": [\n    {\n      \"control\": \"awi-section\",\n      \"properties\": {\n        \"label\": \"Basic Info\",\n        \"usedonactivity\": [\n          \"DRAFT\",\n          \"PAYMENT-DUE\",\n          \"APPLICATION-REVIEW\",\n          \"APPLICATION-OUTCOME\",\n          \"CONFIGURE-ADMFEE\",\n          \"PAYMENT-DUE-ADMFEE\"\n        ],\n        \"readonly-expression\": {\n          \"criteria\": \"step\",\n          \"operation\": \"In\",\n          \"value\": [\n            \"PAYMENT-DUE\",\n            \"APPLICATION-REVIEW\",\n            \"APPLICATION-OUTCOME\",\n            \"CONFIGURE-ADMFEE\",\n            \"PAYMENT-DUE-ADMFEE\"\n          ]\n        }\n      },\n      \"elements\": [\n        {\n          \"control\": \"awi-textbox\",\n          \"properties\": {\n            \"label\": \"Name\",\n            \"required\": true,\n            \"binding\": \"Applicant.StudentName\"\n          }\n        },\n        {\n          \"control\": \"awi-combobox\",\n          \"properties\": {\n            \"label\": \"School Year\",\n            \"required\": true,\n            \"binding\": \"Applicant.SchoolYear\",\n            \"help-message\": \"Select School Year\",\n            \"display-field\": \"Name\",\n            \"dictionary\": {\n              \"code\": \"DictSchoolYear\",\n              \"domainModel\": {\n                \"code\": \"{{domain_model_code}}\",\n                \"organization\": {\n                  \"code\": \"{{pubOrgCode}}\"\n                }\n              }\n            }\n          }\n        },\n        {\n          \"control\": \"awi-textbox\",\n          \"properties\": {\n            \"label\": \"Email ID\",\n            \"binding\": \"Applicant.StudentEmail\",\n            \"pattern\": \"[a-z0-9._%+-]+@[a-z0-9.-]+\\\\.[a-z]{2,3}$\"\n          }\n        },\n        {\n          \"control\": \"awi-phone\",\n          \"properties\": {\n            \"label\": \"Mobile Phone\",\n            \"binding\": \"Applicant.PhoneNumber\"\n          }\n        }\n      ]\n    },\n    {\n      \"control\": \"awi-section\",\n      \"properties\": {\n        \"label\": \"Education\",\n        \"usedonactivity\": [\n          \"DRAFT\",\n          \"PAYMENT-DUE\",\n          \"APPLICATION-REVIEW\",\n          \"APPLICATION-OUTCOME\",\n          \"CONFIGURE-ADMFEE\",\n          \"PAYMENT-DUE-ADMFEE\"\n        ],\n        \"readonly-expression\": {\n          \"criteria\": \"step\",\n          \"operation\": \"In\",\n          \"value\": [\n            \"PAYMENT-DUE\",\n            \"APPLICATION-REVIEW\",\n            \"APPLICATION-OUTCOME\",\n            \"CONFIGURE-ADMFEE\",\n            \"PAYMENT-DUE-ADMFEE\"\n          ]\n        }\n      },\n      \"elements\": [\n        {\n          \"control\": \"awi-grid\",\n          \"properties\": {\n            \"binding\": \"Applicant.Education\",\n            \"id\": \"Educationgrid\",\n            \"label\": \"Education\",\n            \"depends\": \"Applicant.Grades\",\n            \"dependent-path\": \"Education\",\n            \"dependant-grid-name\": \"Grades\",\n            \"required\": true,\n            \"modal-size\": \"medium\",\n            \"modal-columns-layout\": \"single\",\n            \"default-sort\": {\n              \"direction\": \"asc\",\n              \"binding\": \"CompletionYear\"\n            }\n          },\n          \"elements\": [\n            {\n              \"control\": \"awi-gridcolumns\",\n              \"elements\": [\n                {\n                  \"control\": \"awi-combobox\",\n                  \"properties\": {\n                    \"label\": \"Education Level\",\n                    \"script-id\": \"SetEducationLevelSchoolName\",\n                    \"required\": true,\n                    \"binding\": \"EducationLevel\",\n                    \"help-message\": \"Select Education Level\",\n                    \"display-field\": \"Name\",\n                    \"dictionary\": {\n                      \"code\": \"DictEducationLevel\",\n                      \"domainModel\": {\n                        \"code\": \"{{domain_model_code}}\",\n                        \"organization\": {\n                          \"code\": \"{{pubOrgCode}}\"\n                        }\n                      }\n                    }\n                  }\n                },\n                {\n                  \"control\": \"awi-textbox\",\n                  \"properties\": {\n                    \"label\": \"School Name\",\n                    \"script-id\": \"SetEducationLevelSchoolName\",\n                    \"binding\": \"SchoolName\",\n                    \"uppercase\": true\n                  }\n                },\n                {\n                  \"control\": \"awi-textbox\",\n                  \"properties\": {\n                    \"label\": \"Completion Year\",\n                    \"binding\": \"CompletionYear\",\n                    \"uppercase\": true,\n                \t\"pattern\": \"^\\\\d{4}$\"\n                  }\n                },\n                {\n                  \"control\": \"awi-document\",\n                  \"properties\": {\n                    \"label\": \"Transcript\",\n                    \"required\": true,\n                    \"hidecolumn\": true,\n                    \"binding\": \"Transcript\"\n                  }\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"control\": \"awi-section\",\n      \"properties\": {\n        \"label\": \"Grades\",\n        \"usedonactivity\": [\n          \"DRAFT\",\n          \"PAYMENT-DUE\",\n          \"APPLICATION-REVIEW\",\n          \"APPLICATION-OUTCOME\",\n          \"CONFIGURE-ADMFEE\",\n          \"PAYMENT-DUE-ADMFEE\"\n        ],\n        \"readonly-expression\": {\n          \"criteria\": \"step\",\n          \"operation\": \"In\",\n          \"value\": [\n            \"PAYMENT-DUE\",\n            \"APPLICATION-REVIEW\",\n            \"APPLICATION-OUTCOME\",\n            \"CONFIGURE-ADMFEE\",\n            \"PAYMENT-DUE-ADMFEE\"\n          ]\n        }\n      },\n      \"elements\": [\n        {\n          \"control\": \"awi-grid\",\n          \"properties\": {\n            \"binding\": \"Applicant.Grades\",\n            \"id\": \"Gradesgrid\",\n            \"label\": \"Grades\",\n            \"required\": true,\n            \"modal-size\": \"large\",\n            \"modal-columns-layout\": \"double\",\n            \"default-sort\": {\n              \"direction\": \"asc\",\n              \"binding\": \"Applicant.Grades\"\n            }\n          },\n          \"elements\": [\n            {\n              \"control\": \"awi-gridcolumns\",\n              \"elements\": [\n                {\n                  \"control\": \"awi-dropdown\",\n                  \"properties\": {\n                    \"label\": \"Education Level\",\n                    \"required\": true,\n                    \"wido-source-path\": \"Applicant.Education\",\n                    \"display-property\": \"EducationLevelNSchool\",\n                    \"binding\": \"EducationLevel\",\n                    \"help-message\": \"Select Education Level\"\n                  }\n                },\n                {\n                  \"control\": \"awi-textbox\",\n                  \"properties\": {\n                    \"label\": \"Subject Name\",\n                    \"required\": true,\n                    \"binding\": \"SubjectName\",\n                    \"uppercase\": true\n                  }\n                },\n                {\n                  \"control\": \"awi-combobox\",\n                  \"properties\": {\n                    \"label\": \"Grades\",\n                    \"required\": true,\n                    \"binding\": \"Grade\",\n                    \"help-message\": \"Select Grade\",\n                    \"display-field\": \"Name\",\n                    \"dictionary\": {\n                      \"code\": \"DictGrade\",\n                      \"domainModel\": {\n                        \"code\": \"{{domain_model_code}}\",\n                        \"organization\": {\n                          \"code\": \"{{pubOrgCode}}\"\n                        }\n                      }\n                    }\n                  }\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"control\": \"awi-section\",\n      \"properties\": {\n        \"label\": \"Service Fees\",\n        \"usedonactivity\": [\n          \"DRAFT\",\n          \"CONFIGURE-ADMFEE\",\n          \"PAYMENT-DUE-ADMFEE\",\n          \"PAYMENT-DUE\"\n        ]\n      },\n      \"elements\": [\n        {\n          \"control\": \"awi-pricing\",\n          \"properties\": {\n            \"rows\": [\n              {\n                \"code\": \"ADMISSION-WORKFLOW\",\n                \"parentWorkflow\": true\n              }\n            ]\n          }\n        }\n      ]\n    },\n    {\n      \"control\": \"awi-section\",\n      \"properties\": {\n        \"label\": \"Application Decision\",\n        \"usedonactivity\": [\n          \"APPLICATION-REVIEW\",\n          \"APPLICATION-OUTCOME\",\n          \"CONFIGURE-ADMFEE\",\n          \"PAYMENT-DUE-ADMFEE\"\n        ],\n        \"readonly-expression\": {\n          \"criteria\": \"step\",\n          \"operation\": \"In\",\n          \"value\": [\n            \"APPLICATION-OUTCOME\",\n            \"CONFIGURE-ADMFEE\",\n            \"PAYMENT-DUE-ADMFEE\"\n          ]\n        }\n      },\n      \"elements\": [\n        {\n          \"control\": \"awi-datepicker\",\n          \"properties\": {\n            \"label\": \"Decision Date\",\n            \"binding\": \"Applicant.ApplDecisionDate\",\n            \"show-time\": false,\n            \"min-date\": \"today\",\n            \"required\": true\n          }\n        },\n        {\n          \"control\": \"awi-combobox\",\n          \"properties\": {\n            \"label\": \"Application Decision\",\n            \"required\": true,\n            \"binding\": \"Applicant.ApplDecisionOutcome\",\n            \"help-message\": \"Your Decision\",\n            \"display-field\": \"Name\",\n            \"dictionary\": {\n              \"code\": \"DictApplDecisionOutcome\",\n              \"domainModel\": {\n                \"code\": \"{{domain_model_code}}\",\n                \"organization\": {\n                  \"code\": \"{{pubOrgCode}}\"\n                }\n              }\n            }\n          }\n        },\n        {\n          \"control\": \"awi-datepicker\",\n          \"properties\": {\n            \"label\": \"Enrollment Deadline Date\",\n            \"binding\": \"Applicant.EnrDeadlineDate\",\n            \"show-time\": false,\n            \"min-date\": \"today\",\n            \"required\": true\n          }\n        },\n        {\n          \"control\": \"awi-document\",\n          \"properties\": {\n            \"label\": \"Decision Letter\",\n            \"binding\": \"Applicant.ApplDecisionLetter\",\n            \"hidden-expression\": {\n              \"criteria\": \"step\",\n              \"operation\": \"IsEqual\",\n              \"value\": \"APPLICATION-REVIEW\"\n            }\n          }\n        }\n      ]\n    },\n    {\n      \"control\": \"awi-section\",\n      \"properties\": {\n        \"label\": \"Acceptance\",\n        \"usedonactivity\": [\n          \"APPLICATION-OUTCOME\",\n          \"CONFIGURE-ADMFEE\",\n          \"PAYMENT-DUE-ADMFEE\"\n        ],\n            \"hidden-expression\": {\n              \"binding-path\": \"Applicant.ApplDecisionOutcome.Name\",\n              \"operation\": \"IsNotEqual\",\n              \"value\": \"Accepted\"\n            },\n                    \"readonly-expression\": {\n          \"criteria\": \"step\",\n          \"operation\": \"In\",\n          \"value\": [\n            \"CONFIGURE-ADMFEE\",\n            \"PAYMENT-DUE-ADMFEE\"\n          ]\n        }\n      },\n      \"elements\": [\n        {\n          \"control\": \"awi-radio\",\n          \"properties\": {\n            \"label\": \"Admission Offer\",\n            \"binding\": \"Applicant.ApplAcceptance\",\n            \"layout\": \"vertical\",\n            \"items\": [\n              {\n                \"value\": \"Accept\",\n                \"label\": \"I Accept Admission Offer\"\n              },\n              {\n                \"value\": \"Decline\",\n                \"label\": \"I Decline Admission Offer\"\n              }\n            ],\n            \"required\": true\n          }\n        }\n      ]\n    },\n    {\n      \"control\": \"awi-section\",\n      \"properties\": {\n        \"label\": \"Admission Deposit Fee\",\n        \"usedonactivity\": [\n          \"APPLICATION-OUTCOME\"\n        ],\n            \"hidden-expression\": {\n              \"binding-path\": \"Applicant.ApplAcceptance\",\n              \"operation\": \"IsNotEqual\",\n              \"value\": \"Accept\"\n            }\n      },\n      \"elements\": [\n        {\n          \"control\": \"awi-statictext\",\n          \"properties\": {\n            \"value\": \"Be informed that $3000 will be due upon acceptance as admission fee.\",\n            \"preset\": \"3\"\n          }\n        }\n      ]\n    },\n    {\n      \"control\": \"awi-section\",\n      \"properties\": {\n        \"label\": \"Enrollment Info\",\n        \"usedonactivity\": [\n          \"ENR-INFO\"\n        ]\n      },\n      \"elements\": [\n        {\n          \"control\": \"awi-document\",\n          \"properties\": {\n            \"label\": \"Enrollment Letter\",\n            \"binding\": \"Applicant.ApplEnrollmentLetter\"\n          }\n        },\n        {\n          \"control\": \"awi-document\",\n          \"properties\": {\n            \"label\": \"Policies N Procedures Letter\",\n            \"binding\": \"Applicant.ApplPoliciesnProcedures\"\n          }\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "0a92701c-bd2a-4789-fc04-2b9773965a42",
+          "name": "Process  Version",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/workflow/ADMISSION-WORKFLOW/{{ADM_V}}/process",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Activities\": [\n    {\n      \"Code\": \"INITIAL\",\n      \"Name\": \"Initial\",\n      \"ActivityType\": \"Initial\"\n    },\n    {\n      \"Code\": \"DRAFT\",\n      \"Name\": \"File Application\",\n      \"clientName\": \"File Application\",\n      \"ActivityType\": \"step\",\n      \"defaultActionCode\": \"Step1-Submit\",\n      \"Participants\": [\n        {\n          \"ParticipantType\": \"PRIMARY\",\n          \"Role\": {\n            \"Code\": \"Student\"\n          },\n          \"actions\": [\n            {\n              \"Code\": \"Step1-Submit\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"Code\": \"CREATE-INVOICE\",\n      \"Name\": \"Create-Invoice\",\n      \"ActivityType\": \"CAPTURE_INVOICE_DATA\"\n    },\n    {\n      \"Code\": \"PAYMENT-DUE\",\n      \"Name\": \"Make Payment\",\n      \"ActivityType\": \"MAKE_PAYMENT\",\n      \"clientName\": \"Make Payment\",\n      \"Participants\": [\n        {\n          \"ParticipantType\": \"PRIMARY\",\n          \"Role\": {\n            \"Code\": \"Student\"\n          }\n        },\n        {\n          \"ParticipantType\": \"SUPERVISOR\",\n          \"Role\": {\n            \"Code\": \"ADMISSIONOFFICER\"\n          }\n        }\n      ]\n    },\n    {\n      \"Code\": \"APPLICATION-REVIEW\",\n      \"Name\": \"Application Review\",\n      \"clientName\": \"Application Review\",\n      \"ActivityType\": \"step\",\n      \"defaultActionCode\": \"REVIEW-SUBMIT\",\n      \"Participants\": [\n        {\n          \"ParticipantType\": \"PRIMARY\",\n          \"Role\": {\n            \"Code\": \"ADMISSIONOFFICER\"\n          },\n          \"actions\": [\n            {\n              \"Code\": \"REVIEW-SUBMIT\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"Code\": \"GENERATE-DECISION-LETTER\",\n      \"Name\": \"Generate Decision Letter\",\n      \"ActivityType\": \"GENERATE_DOCS\",\n      \"Documents\": [\n        {\n          \"TemplateCode\": \"DECISION_LETTER_DOC\",\n          \"BindingPathSuffix\": \"Applicant.ApplDecisionLetter\",\n          \"AddToFlatList\": false,\n          \"Label\": \"Decision Letter\",\n          \"Format\": \"application/pdf\"\n        }\n      ],            \"events\": [\n        {\n          \"Type\": \"COMPLETED\",\n          \"EventHandler\": \"EMAIL\",\n          \"emailTo\": \"WF_INITIATOR\",\n          \"EmailTemplateCode\": \"NOTIFY-DECISION\"\n        }\n      ]\n    },\n    {\n      \"Code\": \"APPLICATION-OUTCOME\",\n      \"Name\": \"Application Outcome\",\n      \"clientName\": \"Application Outcome\",\n      \"ActivityType\": \"step\",\n      \"defaultActionCode\": \"STUDENT-ACCEPTANCE-SUBMIT\",\n      \"Participants\": [\n        {\n          \"ParticipantType\": \"PRIMARY\",\n          \"Role\": {\n            \"Code\": \"STUDENT\"\n          },\n          \"actions\": [\n            {\n              \"Code\": \"STUDENT-ACCEPTANCE-SUBMIT\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"Code\": \"CONFIGURE-ADMFEE\",\n      \"Name\": \"Configure Admission Fee\",\n      \"clientName\": \"Admission Processing\",\n      \"ActivityType\": \"step\",\n      \"defaultActionCode\": \"CONFIGURE-ADMFEE-SUBMIT\",\n      \"Participants\": [\n        {\n          \"ParticipantType\": \"PRIMARY\",\n          \"Role\": {\n            \"Code\": \"ADMISSIONOFFICER\"\n          },\n          \"actions\": [\n            {\n              \"Code\": \"CONFIGURE-ADMFEE-SUBMIT\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"Code\": \"CREATE-INVOICE-ADMFEE\",\n      \"Name\": \"Create-Invoice\",\n      \"ActivityType\": \"CAPTURE_INVOICE_DATA\"\n    },\n    {\n      \"Code\": \"PAYMENT-DUE-ADMFEE\",\n      \"Name\": \"Pay Admission Fee\",\n      \"ActivityType\": \"MAKE_PAYMENT\",\n      \"clientName\": \"Pay Admission Fee\",\n      \"Participants\": [\n        {\n          \"ParticipantType\": \"PRIMARY\",\n          \"Role\": {\n            \"Code\": \"Student\"\n          }\n        },\n        {\n          \"ParticipantType\": \"SUPERVISOR\",\n          \"Role\": {\n            \"Code\": \"ADMISSIONOFFICER\"\n          }\n        }\n      ]\n    },\n    {\n      \"Code\": \"GENERATE-ENRL-LETTER\",\n      \"Name\": \"Generate Enrollment Letter\",\n      \"ActivityType\": \"GENERATE_DOCS\",\n      \"Documents\": [\n        {\n          \"TemplateCode\": \"ENROLLMENT_LETTER_DOC\",\n          \"BindingPathSuffix\": \"Applicant.ApplEnrollmentLetter\",\n          \"AddToFlatList\": false,\n          \"Label\": \"Enrollment Letter\",\n          \"Format\": \"application/pdf\"\n        },\n                {\n          \"TemplateCode\": \"POLICIES_N_PROCEDURES_DOC\",\n          \"BindingPathSuffix\": \"Applicant.ApplPoliciesnProcedures\",\n          \"AddToFlatList\": false,\n          \"Label\": \"Policies N Procedure Letter\",\n          \"Format\": \"application/pdf\"\n        }\n      ]\n    },\n    {\n      \"Code\": \"CREATE-MASTER\",\n      \"Name\": \"Create Master Data\",\n      \"ActivityType\": \"MASTER_DATA_SYNC\"\n    },\n\t{\n      \"Code\": \"ENR-INFO\",\n      \"Name\": \"Enrolled Information\",\n      \"clientName\": \"Enrolled Information\",\n      \"ActivityType\": \"step\",\n      \"defaultActionCode\": \"ENR-INFO-SUBMIT\",\n      \"Participants\": [\n        {\n          \"ParticipantType\": \"PRIMARY\",\n          \"Role\": {\n            \"Code\": \"STUDENT\"\n          },\n          \"actions\": [\n            {\n              \"Code\": \"ENR-INFO-SUBMIT\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"Code\": \"FINAL\",\n      \"ActivityType\": \"Final\",\n      \"name\": \"Final\"\n    }\n  ],\n  \"Actions\": [\n    {\n      \"Code\": \"Create\",\n      \"Name\": \"Create\",\n      \"actiontype\": \"System\",\n      \"activityFrom\": {\n        \"Code\": \"INITIAL\"\n      },\n      \"activityTo\": {\n        \"Code\": \"DRAFT\"\n      }\n    },\n    {\n      \"Code\": \"Step1-Submit\",\n      \"Name\": \"Submit\",\n      \"actiontype\": \"User\",\n      \"activityFrom\": {\n        \"Code\": \"DRAFT\"\n      },\n      \"activityTo\": {\n        \"Code\": \"CREATE-INVOICE\"\n      }\n    },\n    {\n      \"Code\": \"CREATE-INVOICE-SUBMIT\",\n      \"Name\": \"Submit\",\n      \"actiontype\": \"System\",\n      \"activityFrom\": {\n        \"Code\": \"CREATE-INVOICE\"\n      },\n      \"activityTo\": {\n        \"Code\": \"PAYMENT-DUE\"\n      }\n    },\n    {\n      \"Code\": \"Payment-Due-Make-Payment\",\n      \"Name\": \"Make Payment\",\n      \"actiontype\": \"system\",\n      \"activityFrom\": {\n        \"Code\": \"PAYMENT-DUE\"\n      },\n      \"activityTo\": {\n        \"Code\": \"APPLICATION-REVIEW\"\n      }\n    },\n    {\n      \"Code\": \"REVIEW-SUBMIT\",\n      \"Name\": \"Submit\",\n      \"actiontype\": \"User\",\n      \"activityFrom\": {\n        \"Code\": \"APPLICATION-REVIEW\"\n      },\n      \"activityTo\": {\n        \"Code\": \"GENERATE-DECISION-LETTER\"\n      }\n    },\n    {\n      \"Code\": \"GENERATE-DECISION-LETTER\",\n      \"Name\": \"GENERATE-DECISION-LETTER\",\n      \"actiontype\": \"System\",\n      \"activityFrom\": {\n        \"Code\": \"GENERATE-DECISION-LETTER\"\n      },\n      \"activityTo\": {\n        \"Code\": \"APPLICATION-OUTCOME\"\n      }\n    },\n    {\n      \"Code\": \"STUDENT-ACCEPTANCE-SUBMIT\",\n      \"Name\": \"SUBMIT\",\n      \"actiontype\": \"User\",\n      \"activityFrom\": {\n        \"Code\": \"APPLICATION-OUTCOME\"\n      },\n      \"activityTo\": {\n        \"Code\": \"CONFIGURE-ADMFEE\"\n      }\n    },\n    {\n      \"Code\": \"CONFIGURE-ADMFEE-SUBMIT\",\n      \"Name\": \"SUBMIT\",\n      \"actiontype\": \"User\",\n      \"activityFrom\": {\n        \"Code\": \"CONFIGURE-ADMFEE\"\n      },\n      \"activityTo\": {\n        \"Code\": \"CREATE-INVOICE-ADMFEE\"\n      }\n    },\n    {\n      \"Code\": \"CREATE-INVOICE-ADMFEE-SUBMIT\",\n      \"Name\": \"Submit\",\n      \"actiontype\": \"System\",\n      \"activityFrom\": {\n        \"Code\": \"CREATE-INVOICE-ADMFEE\"\n      },\n      \"activityTo\": {\n        \"Code\": \"PAYMENT-DUE-ADMFEE\"\n      }\n    },\n    {\n      \"Code\": \"MAKE-PAYMENT-ADMFEE\",\n      \"Name\": \"Make Payment\",\n      \"actiontype\": \"system\",\n      \"activityFrom\": {\n        \"Code\": \"PAYMENT-DUE-ADMFEE\"\n      },\n      \"activityTo\": {\n        \"Code\": \"GENERATE-ENRL-LETTER\"\n      }\n    },\n    {\n      \"Code\": \"GENERATE-ENR-LTTR\",\n      \"Name\": \"GENERATE-ENROLLMENT-LETTER\",\n      \"actiontype\": \"System\",\n      \"activityFrom\": {\n        \"Code\": \"GENERATE-ENRL-LETTER\"\n      },\n      \"activityTo\": {\n        \"Code\": \"CREATE-MASTER\"\n      }\n    },\n    {\n      \"Code\": \"Create-Master-Complete\",\n      \"Name\": \"Complete\",\n      \"actiontype\": \"System\",\n      \"activityFrom\": {\n        \"Code\": \"CREATE-MASTER\"\n      },\n      \"activityTo\": {\n        \"Code\": \"ENR-INFO\"\n      }\n    },\n    {\n      \"Code\": \"ENR-INFO-SUBMIT\",\n      \"Name\": \"SUBMIT\",\n      \"actiontype\": \"User\",\n      \"activityFrom\": {\n        \"Code\": \"ENR-INFO\"\n      },\n      \"activityTo\": {\n        \"Code\": \"FINAL\"\n      }\n    }\n    \n    \n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "1b48c717-3d7b-828f-2d2f-8942890e1719",
+          "name": "Associated Workflows - New Company Incorporation - Not IN USE",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/workflows/ADMISSION-WORKFLOW/{{ADM_V}}/associated-workflows",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n   \"Code\":\"RDSR-WORKFLOW\"\n  },\n  {\n   \"Code\":\"QRDSR-WORKFLOW\"\n  },\n  {\n   \"Code\":\"CSSR-WORKFLOW\"\n  },\n  {\n    \"Code\":\"RASR-WORKFLOW\"\n  },\n  {\n    \"Code\":\"EPIMM-WORKFLOW\"\n  },\n  {\n    \"Code\":\"DPIMM-WORKFLOW\"\n  }\n]"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "4861576f-48db-42a1-d0cd-9ddff7566a00",
+          "name": "Publish Workflow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/workflows/ADMISSION-WORKFLOW/{{ADM_V}}/publish",
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "87b5e4c1-a29b-9ec3-0284-613163b98c69",
+          "name": "Script SetEducationLevelSchoolName",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var version = jsonData.Version;",
+                  "postman.setGlobalVariable(\"NCISetShareClassName_V\", version);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/scripts/SetEducationLevelSchoolName",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/javascript",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "// This script is used in Admission Workflow\n\nthis.script = {\n  blur: function(){\n      if (this.value){\n            var educationLevel = this.data.EducationLevel.Name ;\n            var schoolName = this.data.SchoolName;\n            \n            if (educationLevel && schoolName) {\n        var gradesELClassName = educationLevel +'- '+ schoolName;\n            this.set('data.EducationLevelNSchool', gradesELClassName);\n         console.log('EducationLevelNSchool: ', gradesELClassName);\n            }\n      } \n   }\n}\n \n"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "5fcc96ef-6217-175a-9e43-57866b67e833",
+          "name": "Script SetEducationLevelSchoolName",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/meta/scripts/SetEducationLevelSchoolName/{{NCISetShareClassName_V}}/publish",
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/javascript",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "420a9811-bba7-1ec9-9f2b-7f9dc4d4a738",
+      "name": "08.99 Create Default pricing plan",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "e8de2c93-59fd-bd84-1e24-0e9170f5b3f2",
+          "name": "Default pricing plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var defaultPricingPlanId = jsonData.Id;",
+                  "postman.setEnvironmentVariable(\"defaultPricingPlanId\", defaultPricingPlanId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/domainApplication/{{domain_application_id}}/licensing/{{licensingModelKey}}/pricingPlan",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Name\":\"Default pricing plan\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "4a3d7f20-b535-14c8-2bec-704efbde369b",
+          "name": "Get Admission workflow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var key = jsonData.Key;",
+                  "postman.setEnvironmentVariable(\"admWorkflowKey\", key);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/workflows/ADMISSION-WORKFLOW",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "061c7be9-8d0e-8caf-f380-ac0415d6760f",
+          "name": "Create Pricing Plan for workflows",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/domainApplication/{{domain_application_id}}/licensing/{{licensingModelKey}}/pricingPlan/{{defaultPricingPlanId}}/workflow/bulk",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"DefaultPrice\": \"100.00\",\n    \"MinimumPrice\": \"100.00\",\n    \"WorkflowKey\": \"{{admWorkflowKey}}\",\n    \"AdditionalServices\": {\n      \"group\": \"ADMFEE\",\n      \"code\": \"ADMISSIONFEE\",\n      \"label\": \"Admission Fee\",\n      \"price\": \"3000.00\"\n    }\n  }\n]"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "fa273a0f-1ad3-0593-e4c4-ed2ed40791ca",
+      "name": "09 - Business Document Templates",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "c42a0653-62c3-3538-2892-9a956c91305c",
+          "name": "Decision Letter Template",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/document-template",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"DECISION_LETTER_DOC\",\n  \"fileId\": \"12bfwxjpy9NaBcqV0iKJgoQqoDWKiZe_6sDQfRvmFdvc\",\n  \"name\": \"Decision Letter\",\n  \"organizationSettingNames\": [\n    \"SubscriberName\",\n    \"SubscriberReference\",\n    \"SubscriberAddress\",\n    \"SubscriberRegistrationNo\",\n    \"SubscriberSignatoryName\",\n    \"SubscriberSignatoryTitle\"\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "04b758de-53b4-a585-2851-6276ab0f9cea",
+          "name": "Enrollment Letter Template",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/document-template",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"ENROLLMENT_LETTER_DOC\",\n  \"fileId\": \"1bvb3W-McJAyc8seyMJJSjBBE7hAvfwxaKy4Cs-O5JLM\",\n  \"name\": \"Enrollment Letter\",\n  \"organizationSettingNames\": [\n    \"SubscriberName\",\n    \"SubscriberReference\",\n    \"SubscriberAddress\",\n    \"SubscriberRegistrationNo\",\n    \"SubscriberSignatoryName\",\n    \"SubscriberSignatoryTitle\"\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "2786a706-e357-c61e-f89a-dac6ed9b0c63",
+          "name": "Policies N Procedures Template",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/document-template",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"POLICIES_N_PROCEDURES_DOC\",\n  \"fileId\": \"16uDQE1VU8vI6WGAIznPsJ9eoFClSYfbHjXktVmhj-Bc\",\n  \"name\": \"Policies N Procedures Letter\",\n  \"organizationSettingNames\": [\n    \"SubscriberName\",\n    \"SubscriberReference\",\n    \"SubscriberAddress\",\n    \"SubscriberRegistrationNo\",\n    \"SubscriberSignatoryName\",\n    \"SubscriberSignatoryTitle\"\n  ]\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "ef7d6d5d-d873-306d-9812-b524d9b69b1e",
+      "name": "10 - Create Email Templates",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "52bb135f-cdf4-fab1-e001-ae9cc9ccbb85",
+          "name": "Task Assignment Notification Email Template",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/email-template",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"NOTIFY-TASK-ASSIGNMENT\",\n  \"Content\": \"<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.0 Transitional//EN'><html lang='en'><head>    <meta charset='UTF-8'>    <title>CorporateServices.com</title></head><body>    <table cellpadding='0' cellspacing='0' border='0' width='100%' height='100%' style='height:100%; margin:0; padding:0;'>        <tr>            <td>                <table cellpadding='0' cellspacing='0' border='0' width='100%' style='margin:0; padding:0; background-color:#ffffff;'>                    <tr>                        <td style=\\\"background-color:#03a9f4;\\\" colspan=\\\"3\\\">                            <table cellpadding='0' cellspacing='10' border='0' style='margin:0; padding:0;'>                                <tr>                                    <td><br></td>                                </tr>                            </table>                        </td>                    </tr>                    <tr>                        <td style=\\\"background-color:#03a9f4;\\\">&nbsp;</td>                        <td rowspan=\\\"2\\\" align=\\\"right\\\" width=\\\"156px\\\">                            <table cellpadding='25' cellspacing='0' border='0' style=\\\"background-color:#f5f5f5; border: 1px solid #e4e4e4; margin:0; padding:0;\\\">                                <tr>                                    <td><img width=\\\"156\\\" height=\\\"17\\\" border=\\\"0\\\" src=\\\"https://storage.googleapis.com/domain-application-logos/corporate_services.png\\\" /> </td>                                </tr>                            </table>                        </td>                        <td style=\\\"background-color:#03a9f4;\\\">&nbsp;</td>                    </tr>                    <tr>                        <td style=\\\"background-color:#ffffff;\\\">&nbsp;</td>                        <td style=\\\"background-color:#ffffff;\\\" width=\\\"50px\\\">&nbsp;</td>                    </tr>                </table>            </td>        </tr>        <tr valign='top'>            <td height='100%' style='height:100%;'>                <table cellpadding='0' cellspacing='30' border='0' width='100%'                       style='margin:0; padding:0;'>                    <tr>                        <td style='background-color:#fff; color:#333333; font:13px Arial, sans-serif, serif;' valign='top'>                                                       Dear %name%,                            <br><br>                            The <span style=\\\"font-weight: bold; color: #03a9f4;\\\">%workflowName%</span> service request is at <span style=\\\"font-weight: bold; color: #03a9f4;\\\">%stepName%</span> step and requires your action.                            <br><br><br>                            <span style=\\\"color: #ff9000; font-weight: bold; text-transform: uppercase;\\\">Request Summary</span>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\">Service Request</div>                            <div>%workflowName%</div>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\"> For</div>                            <div>%rootEntityName%</div>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\">  Initiated by</div>                            <div>%initiatorName%</div>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\"> Initiated on</div>                            <div>%initiatedDate%</div>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\">Comments</div>                            <div style=\\\"font-style: italic\\\">%comment%</div>                            <br><br><br>                            To take action on this service request click the button below                            <br><br>                            <table cellpadding='10' cellspacing='0' border='0' style=\\\"background-color:#ff9000;border-radius: 2px; margin:0; padding:0;\\\">                                <tr>                                    <td style=\\\"color: white;\\\"><a href='%taskViewLink%' style='background-color:#ff9000; color:white; font:13px Arial, sans-serif, serif; text-decoration:none; text-transform:uppercase;'>view request</a></td>                                </tr>                            </table>                            <br>                            <br>                            <br>                            Sincerely,                            <br>                            CorporateServices.com Team                        </td>                    </tr>                </table>            </td>        </tr>        <tr valign='middle'>            <td style='background-color:#03a9f4;'>                <table cellpadding='0' cellspacing='20' border='0' width='100%'                       style='margin:0; padding:0;'>                    <tr valign='middle'>                        <td style='text-align: right;'>                            <img width=\\\"84\\\" height=\\\"30\\\" border=\\\"0\\\" src=\\\"https://storage.googleapis.com/domain-application-logos/powered_by_avocado.png\\\" />                        </td>                        <td width=\\\"10px\\\">                            &nbsp;                        </td>                    </tr>                </table>            </td>        </tr>    </table></body></html>\",\n  \"Subject\": \"Action Required on %workflowName% for %rootEntityName%\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "58ccdc4e-d4b7-317c-8747-73ffb1315291",
+          "name": "Decision Notification Email Template",
+          "request": {
+            "url": "{{basepath}}/organization/{{pubOrgCode}}/email-template/",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Code\": \"NOTIFY-DECISION\",\n  \"Content\": \"<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.0 Transitional//EN'><html lang='en'><head>    <meta charset='UTF-8'>    <title>CorporateServices.com</title></head><body>    <table cellpadding='0' cellspacing='0' border='0' width='100%' height='100%' style='height:100%; margin:0; padding:0;'>        <tr>            <td>                <table cellpadding='0' cellspacing='0' border='0' width='100%' style='margin:0; padding:0; background-color:#ffffff;'>                    <tr>                        <td style=\\\"background-color:#03a9f4;\\\" colspan=\\\"3\\\">                            <table cellpadding='0' cellspacing='10' border='0' style='margin:0; padding:0;'>                                <tr>                                    <td><br></td>                                </tr>                            </table>                        </td>                    </tr>                    <tr>                        <td style=\\\"background-color:#03a9f4;\\\">&nbsp;</td>                        <td rowspan=\\\"2\\\" align=\\\"right\\\" width=\\\"156px\\\">                            <table cellpadding='25' cellspacing='0' border='0' style=\\\"background-color:#f5f5f5; border: 1px solid #e4e4e4; margin:0; padding:0;\\\">                                <tr>                                    <td><img width=\\\"156\\\" height=\\\"17\\\" border=\\\"0\\\" src=\\\"https://storage.googleapis.com/domain-application-logos/corporate_services.png\\\" /> </td>                                </tr>                            </table>                        </td>                        <td style=\\\"background-color:#03a9f4;\\\">&nbsp;</td>                    </tr>                    <tr>                        <td style=\\\"background-color:#ffffff;\\\">&nbsp;</td>                        <td style=\\\"background-color:#ffffff;\\\" width=\\\"50px\\\">&nbsp;</td>                    </tr>                </table>            </td>        </tr>        <tr valign='top'>            <td height='100%' style='height:100%;'>                <table cellpadding='0' cellspacing='30' border='0' width='100%'                       style='margin:0; padding:0;'>                    <tr>                        <td style='background-color:#fff; color:#333333; font:13px Arial, sans-serif, serif;' valign='top'>                                                       Dear %name%,                            <br><br>                            The <span style=\\\"font-weight: bold; color: #03a9f4;\\\">%workflowName%</span> service request is at <span style=\\\"font-weight: bold; color: #03a9f4;\\\">%stepName%</span> step and requires your action.                            <br><br><br>                            <span style=\\\"color: #ff9000; font-weight: bold; text-transform: uppercase;\\\">Request Summary</span>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\">Service Request</div>                            <div>%workflowName%</div>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\"> For</div>                            <div>%rootEntityName%</div>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\">  Initiated by</div>                            <div>%initiatorName%</div>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\"> Initiated on</div>                            <div>%initiatedDate%</div>                            <br><br>                            <div style=\\\"color: #757575; font-size: 11px;\\\">Comments</div>                            <div style=\\\"font-style: italic\\\">%comment%</div>                            <br><br><br>                            To take action on this service request click the button below                            <br><br>                            <table cellpadding='10' cellspacing='0' border='0' style=\\\"background-color:#ff9000;border-radius: 2px; margin:0; padding:0;\\\">                                <tr>                                    <td style=\\\"color: white;\\\"><a href='%taskViewLink%' style='background-color:#ff9000; color:white; font:13px Arial, sans-serif, serif; text-decoration:none; text-transform:uppercase;'>view request</a></td>                                </tr>                            </table>                            <br>                            <br>                            <br>                            Sincerely,                            <br>                            CorporateServices.com Team                        </td>                    </tr>                </table>            </td>        </tr>        <tr valign='middle'>            <td style='background-color:#03a9f4;'>                <table cellpadding='0' cellspacing='20' border='0' width='100%'                       style='margin:0; padding:0;'>                    <tr valign='middle'>                        <td style='text-align: right;'>                            <img width=\\\"84\\\" height=\\\"30\\\" border=\\\"0\\\" src=\\\"https://storage.googleapis.com/domain-application-logos/powered_by_avocado.png\\\" />                        </td>                        <td width=\\\"10px\\\">                            &nbsp;                        </td>                    </tr>                </table>            </td>        </tr>    </table></body></html>\",\n  \"Subject\": \"Decision on your application\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
