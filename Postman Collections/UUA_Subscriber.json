@@ -1,0 +1,658 @@
+{
+  "variables": [],
+  "info": {
+    "name": "UUA Subscriber",
+    "_postman_id": "26bc620c-1890-b502-8c00-30f6e4dbdb74",
+    "description": "",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "_postman_id": "39a84b75-3bce-4393-1f95-b4bb7c2d7bd4",
+      "name": "00 - login",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "1c3926bd-aa69-f53f-09cf-56db240cd6fe",
+          "name": "login with superuser",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;",
+                  "var token = postman.getResponseHeader(\"x-auth-token\");",
+                  "postman.setEnvironmentVariable(\"x-auth-token\", token);",
+                  "",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var sp = postman.getEnvironmentVariable(\"basepath\").replace(\"/v1\",\"\");",
+                  "postman.setEnvironmentVariable(\"servletpath\", sp);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{servletpath}}/login",
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "e",
+                  "type": "text",
+                  "value": "avocadoworkflow@gmail.com"
+                },
+                {
+                  "key": "p",
+                  "type": "text",
+                  "value": "avOcad0"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "83a3f0fe-1fb8-ff29-5289-8170a6895978",
+      "name": "01 - Create Subscriber Org",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "b3382ad1-0280-f217-cefa-fc7ec9cfc89b",
+          "name": "Create University Subscriber",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/Organization",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"Code\": \"{{subsOrgCode}}\",\n    \"Name\": \"National University of Ukraine\",\n    \"user\": {\n        \"email\":\"mthawani@gmail.com\"\n    },\n    \"Type\": \"SUBSCRIBER\",\n    \"timeZone\":\"America/Los_Angeles\"\n}\n"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "7c0123c7-25fa-a74e-7f89-3823df145dfa",
+          "name": "Set Organization Settings",
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/settings",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"xero.private.key\": \"-----BEGIN RSA PRIVATE KEY-----\\nMIICWwIBAAKBgQDbzAMWtpBMskndkLEZpoGCTaGdRFFY9BvOW8Bjc0GlBw1vEeUZ\\n2CIkMNSlWSu9t4MYVDhVS2QpqXuLH2ubll1YyJgEgzqDWcD5YPCByPtwboEbZbJV\\ngT+PD87QHQQgBN9if2+3SKzBkTHq6S1/3m1dVZLVhAXmw7B6TBpbgg3tkQIDAQAB\\nAoGAXCl3Qhba+s3nWxhIqlC/DTwwABmdYoc5AZZHXWv+oowKfgAq6GNQLYysHYj+\\nZlaEibcGx/0MysteGj/ahyrNiJ1nInTO2pz2q/ae0OpLYJQ/kJXjjnSmdQEQVdh5\\nCKqzcowWNf6cwQGevUe51GOWiEXdKc8TEzFD3q3ok4voloECQQD+j9aibCe3jp6d\\nOwJkrQPKVvkRnktRFXwUmKZDRxUhi0MauVPfC+qHRyGUolULsTFqWCf2Y/lFcmcs\\nHc39tqQdAkEA3QnlB1MFceQqy1v+v3zA3DUeegxlx6G/vTrea/iBIKA9gbJFHBg8\\nVgLxg7o63tsQc7Y/I68sIT3aBVAVfKBNBQJASo7gg4QAAgAwrsaIxeny0UG2A5YE\\nY0RSqkmncM8R/lgmmF4tlYeM8oA/8qO1Gw6T9ZzKX50adl+ynjZAjg3/dQJARob0\\ns+ySjS9/VBnLY+/7XYf5bHnuM89xbYCOHadSFEXsuihWkstM3SjdROm0BQ2i5zjc\\nVpd7HjQtD4rpADXpvQJAYByQq4lvjepuz/us8KdsYX24b/8GMaJkfnT0szCXKoEN\\n7/sEmhZtjZaX8wJjk0i32bx8AFgpq3VoRfysSgCJYg==\\n-----END RSA PRIVATE KEY-----\",\n  \"xero.consumer.key\": \"YVKIP9ODKCVZNN4IY2ZIFIXX2MK5V8\",\n  \"xero.consumer.secret\": \"MDDECAQRDWGSKKEFWLCVEZXWYKMYLA\",\n  \"xero.GLCODEFORPREPAYMENT\": \"100\",\n  \"xero.GLCODEFORSALES\": \"200\",\n  \"xero.GLCODEFORDEPOSIT\": \"2000\",\n  \"xero.BANKACCOUNTCODE\": \"D53AE8FE-351D-45CA-85A4-9D8C2671D14E\",\n  \"xero.TAXTYPECODE\": \"TAX001\",\n  \"xero.TAXTYPECODEFORNOTAX\": \"NONE\",\n  \"COLLECTTAX\": \"true\",\n  \"TAXLABEL\": \"GST\",\n  \"TAXRATE\": \"7\",\n  \"SubscriberName\" : \"National University of Ukraine\",\n  \"SubscriberReference\" : \"NUU\",\n  \"SubscriberAddress\" : \"Ukraine\",\n  \"SubscriberRegistrationNo\" : \"20174748E\",\n  \"SubscriberSignatoryName\" : \"Peter Johnson\",\n  \"SubscriberSignatoryTitle\" : \"Managing Director\",\n  \"BankNameAndAddress\" :\"Citibank Singapore Limited\",\n  \"BankSwiftCode\" :\"CITISGSGGCB\",\n  \"AccountNameAndAddress\": \"\",\n  \"AccountNo\" :\"11111111\",\n  \"events.email.from\" : \"no-reply@corporateservices.com\",\n  \"events.email.from.userName\": \"Corporate Services\",\n  \"task.assignment.email.template.code\": \"NOTIFY-TASK-ASSIGNMENT\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "e09eb2c9-da55-36c1-9726-33f4ef7b4ac3",
+      "name": "03 - Subscribe to Domain Application",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "6c10d16d-540c-7120-ad05-3ae212fd1d64",
+          "name": "Subscribe to Domain Application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/market/applications/{{domain_application_id}}/subscriptions",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Subscriber\": {\n    \"Code\": \"{{subsOrgCode}}\"\n  },\n  \"licensingModelKey\":\"{{licensingModelKey}}\",\n  \"StartDate\": \"2010-10-10\",\n  \"EndDate\" : \"2020-11-11\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "80850292-3969-0600-62c3-bbdde34b6700",
+      "name": "03.1 Create Subscriber Pricing Plans",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "d4dddf56-1c3a-9ce5-caa7-31a244118c5d",
+          "name": "subscriber  pricing plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var evenPricingPlanId = jsonData.Id;",
+                  "postman.setEnvironmentVariable(\"evenPricingPlanId\", evenPricingPlanId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/domainApplication/{{domain_application_id}}/licensing/{{licensingModelKey}}/pricingPlan",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Name\":\"Subscriber pricing plan\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "81e10e4f-1172-aaa1-d892-76cf5efdc006",
+          "name": "subscriber Pricing Plan details bulk",
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/domainApplication/{{domain_application_id}}/licensing/{{licensingModelKey}}/pricingPlan/{{evenPricingPlanId}}/workflow/bulk",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"Price\": \"100.00\",\n    \"WorkflowKey\": \"{{admWorkflowKey}}\",\n    \"AdditionalServices\": [\n      {\n        \"group\": \"ADMFEE\",\n        \"code\": \"ADMISSIONFEE\",\n        \"label\": \"Admission Fee\",\n        \"price\": \"3000.00\"\n      }\n    ]\n  }\n]"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "4e2fc608-f301-1178-da92-57f38a2bbd9a",
+          "name": "Subscriber Pricing Plan - dateRange",
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/domainApplication/{{domain_application_id}}/licensing/{{licensingModelKey}}/pricingPlan/{{evenPricingPlanId}}/dateRange",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"StartDate\":\"2017-01-01\",\n  \"EndDate\":\"2017-12-31\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "8ba63cbb-8686-792c-32fd-dd779de43a17",
+      "name": "04 - Create Teams",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "7afb1a28-f6f9-559f-794c-7baffade7aa7",
+          "name": "Create Team 'Team Small'",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var teamsmall_id = jsonData.Id;",
+                  "postman.setGlobalVariable(\"TeamSmall_code\", teamsmall_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/team",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\":\"TeamSmall\",\n    \"name\":\"Team Small\"\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "52370f6a-59d0-f5c9-3fbb-84d8b542134c",
+      "name": "05 - Create Clients",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "7aadf9f2-58e3-7821-6490-3406cd1342d3",
+          "name": "Create Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var client_id = jsonData.Id;",
+                  "postman.setGlobalVariable(\"clientnewstartup_id\", client_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/clients",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"JohnCustomer\",\n  \"name\": \"John Q. Customer\",\n  \"email\": \"{{subsOrgCode}}_New_Startup@gmail.com\",\n  \"team\": {\n      \"code\": \"{{TeamSmall_code}}\"\n  }\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "eafcfdad-e953-ca02-a494-5523dffeebfc",
+      "name": "06 Get UserIDs",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "b78df268-58cc-f73b-761f-576a40c797b7",
+          "name": "Get John Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var id = jsonData.Id;",
+                  "postman.setGlobalVariable(\"Enterprenuerone_user_id\", id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": {
+              "raw": "{{basepath}}/users?email=AWIClient@gmail.com",
+              "auth": {
+                "user": "{{basepath}}/users?email=AWIClient",
+                "password": ""
+              },
+              "host": [
+                "gmail",
+                "com"
+              ],
+              "path": [
+                ""
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "AWIClient@gmail.com",
+                  "equals": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "24792936-e4f8-dde2-975e-0dc161db49b0",
+          "name": "Get Adam",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 200\"] = responseCode.code === 200;",
+                  "var jsonData = JSON.parse(responseBody);",
+                  "var id = jsonData.Id;",
+                  "postman.setGlobalVariable(\"Adamanalyst_user_id\", id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": {
+              "raw": "{{basepath}}/users?email=AWIJRCorpSec@gmail.com",
+              "auth": {
+                "user": "{{basepath}}/users?email=AWIJRCorpSec",
+                "password": ""
+              },
+              "host": [
+                "gmail",
+                "com"
+              ],
+              "path": [
+                ""
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "AWIJRCorpSec@gmail.com",
+                  "equals": true,
+                  "description": ""
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "4c693d27-f9db-9951-d0c8-e027d383e68d",
+      "name": "07 - Assign Client Users to Clients",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "ea928e1b-b5e2-2d2a-cb42-924a5045cb33",
+          "name": "Assign John Customer to John Customer",
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/clientuser",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"client\": {\n        \"id\":\"{{clientnewstartup_id}}\"\n    },\n    \"user\": {\n        \"id\":\"{{Enterprenuerone_user_id}}\"\n    }\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "5a6ce0da-8a95-7056-e24e-124ceb848f7d",
+      "name": "08 - Assign Users to Roles",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "ac02fad4-8501-a7a1-1c33-38a7f20a093c",
+          "name": "Adam",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/userrole",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{  \n   \"User\":{\n      \"Id\":\"{{Adamanalyst_user_id}}\" \n   },\n   \"Role\":{  \n      \"Id\":\"ADMISSIONOFFICER\"\n   }\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "_postman_id": "368c3505-95c6-967c-025a-f09a79e2bba7",
+          "name": "Entreprenuer One ",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/userrole",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{  \n   \"User\":{\n      \"Id\":\"{{Enterprenuerone_user_id}}\" \n   },\n   \"Role\":{  \n      \"Id\":\"STUDENT\"\n   }\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "_postman_id": "336a6fc7-7dd5-a7d1-3803-83bf0024d030",
+      "name": "09 - Assign Users to Subscriber Teams",
+      "description": "",
+      "item": [
+        {
+          "_postman_id": "43c9412e-7de7-f1f9-9180-a22568d565ca",
+          "name": "Adam - ADMISSIONOFFICER- Team Small",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "tests[\"Status code is 201\"] = responseCode.code === 201;",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "url": "{{basepath}}/organization/{{subsOrgCode}}/team/{{TeamSmall_code}}/team-users",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{x-auth-token}}",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": ""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user\": {\n        \"id\":\"{{Adamanalyst_user_id}}\"\n    },\n     \"Role\":{  \n      \"Code\":\"ADMISSIONOFFICER\"\n   }\n}"
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
