@@ -1453,7 +1453,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "[\n  {\n    \"DefaultPrice\": \"100.00\",\n    \"MinimumPrice\": \"100.00\",\n    \"WorkflowKey\": \"{{admWorkflowKey}}\",\n    \"AdditionalServices\": {\n      \"group\": \"ADMFEE\",\n      \"code\": \"ADMISSIONFEE\",\n      \"label\": \"Admission Fee\",\n      \"price\": \"3000.00\"\n    }\n  }\n]"
+              "raw": "[\n  {\n    \"DefaultPrice\": \"100.00\",\n    \"MinimumPrice\": \"100.00\",\n    \"WorkflowKey\": \"{{admWorkflowKey}}\",\n    \"AdditionalServices\": [\n      {\n        \"group\": \"ADMFEE\",\n        \"code\": \"ADMISSIONFEE\",\n        \"label\": \"Admission Fee\",\n        \"price\": \"3000.00\"\n      }\n    ]\n  }\n]"
             },
             "description": ""
           },
